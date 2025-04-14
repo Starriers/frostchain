@@ -1,0 +1,78 @@
+name: Deploy FrostChain
+
+on:
+  push:
+    branches:
+      - main      # 提交代码到 main 分支时触发部署
+    paths-ignore: # 规定以下文件变更不触发部署
+      - README.md
+      - LICENSE
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # 使用ubuntu系统镜像
+    steps:
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log In DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: **填入自己的docker名称**/web:${{steps.get_version.outputs.VERSION}}
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - uses: actions/checkout@v2 # 下载代码仓库
+      - name: Setup node # 安装 Node.Js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "20.x"
+      - name: Build # 执行打包逻辑
+        run: |
+          npm install
+          npm run build
+        env:
+          CI: true
+      - name: Deploy to Server # 推送打包产物
+        uses: AEnterprise/rsync-deploy@v1.0.2
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }} # SSH私钥，在仓库Setting里配置
+          ARGS: "-e -c -r --delete"
+          SERVER_PORT: "22" # SSH端口
+          FOLDER: build # 要推送的文件夹，路径相对于代码仓库的根目录
+          SERVER_IP: ${{ secrets.SSH_HOST }} # 服务器的ip
+          USERNAME: ${{ secrets.SSH_USERNAME }} # 服务器登录名，可以在终端输入 whoami 查看
+          SERVER_DESTINATION: /home/demo # 部署到目标文件夹
+      - name: Deploy Post # 后置处理，比如这里会将/home/build文件名改成demo（对应nginx指定的应用目录）
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /home
+            cp -r demo/build demo-temp
+            rm -rf demo
+            mv demo-temp demo
+
