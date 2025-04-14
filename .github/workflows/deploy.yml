@@ -38,7 +38,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: **填入自己的docker名称**/web:${{steps.get_version.outputs.VERSION}}
+          tags: starrier/web:${{steps.get_version.outputs.VERSION}}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
