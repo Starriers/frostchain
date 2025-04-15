@@ -3,7 +3,7 @@ name: Deploy FrostChain
 on:
   push:
     branches:
-      - main      # 提交代码到 main 分支时触发部署
+      - master      # 提交代码到 main 分支时触发部署
     paths-ignore: # 规定以下文件变更不触发部署
       - README.md
       - LICENSE
