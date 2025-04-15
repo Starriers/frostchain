@@ -1,5 +1,5 @@
 # 使用官方 Node.js 作为构建环境
-FROM node:16 AS build
+FROM node:20 AS build
 # 工作端口
 ENV PORT 3000
 
@@ -24,13 +24,13 @@ EXPOSE 3000
 LABEL image.name="frostchain"\ image.version="1.0.0"\ image.description="forst-chain-v1":
 
 # 运行环境使用 nginx
-FROM nginx:1.27-alpine
+#FROM nginx:1.27-alpine
 
 # 从构建阶段复制构建产物到 nginx 目录
-COPY --from=build /app/build /usr/share/nginx/html
+#COPY --from=build /app/build /usr/share/nginx/html
 
 # 暴露 80 端口
 # EXPOSE 80
 
 # 启动 nginx
-CMD ["nginx", "-g", "daemon off;"]
+#CMD ["nginx", "-g", "daemon off;"]
