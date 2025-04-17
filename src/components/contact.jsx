@@ -129,6 +129,11 @@ export const Contact = (props) => {
               <div className="social">
                 <ul>
                   <li>
+                    <a href={props.data ? props.data.wechat : "/"}>
+                      <i className="fa fa-wechat"></i>
+                    </a>
+                  </li>
+                  <li>
                     <a href={props.data ? props.data.facebook : "/"}>
                       <i className="fa fa-weibo"></i>
                     </a>
