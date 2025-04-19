@@ -1,6 +1,6 @@
 # ------------- 阶段 1: 构建 React 项目 -------------
 # 使用官方 Node.js 作为构建环境
-FROM node:20-alphine AS build-stage
+FROM node:20 AS build-stage
 
 # 工作端口
 ENV PORT 3000
