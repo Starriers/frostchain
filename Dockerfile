@@ -1,30 +1,18 @@
-# 使用官方 Node.js 作为构建环境
-FROM node:16 AS build
-
-# 设置工作目录
-WORKDIR /app
-
-# 复制 package.json 和 yarn.lock 文件
-# 如果不是使用 yarn 进行包管理，去掉 yarn.lock 即可
+# 第一阶段：构建阶段
+FROM node:20.4-alpine AS builder
+WORKDIR /usr/src/app
+# 安装依赖
 COPY package.json yarn.lock ./
-
-# 安装项目依赖
-RUN yarn install
-
-# 复制项目文件
+RUN yarn install --frozen-lockfile
 COPY . .
-
-# 构建应用
 RUN yarn build
 
-# 运行环境使用 nginx
-FROM nginx:stable-alpine
+# 第二阶段：生产环境
+FROM nginx:1.25-alpine
 
-# 从构建阶段复制构建产物到 nginx 目录
-COPY --from=build /app/build /usr/share/nginx/html
+# 复制构建产物到 Nginx
+COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 
-# 暴露 80 端口
+# 暴露端口并启动
 EXPOSE 80
-
-# 启动 nginx
 CMD ["nginx", "-g", "daemon off;"]
