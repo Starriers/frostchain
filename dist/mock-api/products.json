@@ -1,0 +1,18 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "香草冰淇淋",
+      "price": 25,
+      "description": "经典香草口味",
+      "image": "/images/vanilla.jpg"
+    },
+    {
+      "id": 2,
+      "name": "巧克力冰淇淋",
+      "price": 30,
+      "description": "浓郁巧克力风味",
+      "image": "/images/chocolate.jpg"
+    }
+  ]
+}
